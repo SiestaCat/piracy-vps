@@ -1,3 +1,3 @@
 # piracy-vps
 
-VPS template: (vps_template.md)
+VPS template: [VPS Template](vps_template.md)
