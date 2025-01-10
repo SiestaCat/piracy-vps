@@ -1,3 +1,7 @@
 # piracy-vps
 
-VPS template: [VPS Template](vps_template.md)
+First step: [VPS Template](vps_template.md)
+
+## OpenVPN Server
+
+* [OpenVPN Server](openvpn_server.md)
