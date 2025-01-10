@@ -2,13 +2,6 @@
 
 [Source](https://github.com/angristan/openvpn-install)
 
-## Firewall
-
-```bash
-ufw allow 1194/udp
-ufw reload
-```
-
 ## Install OpenVPN Server
 
 Download one-click install script
@@ -54,7 +47,7 @@ apt install iptables-persistent -y
 Iptables.
 
 ```bash
-iptables -t nat -A PREROUTING -p tcp -d 12.12.12.12 --dport 5000 -j DNAT --to-destination 10.8.0.2:5000
+iptables -t nat -A PREROUTING -p tcp -d 5.22.216.24 --dport 5000 -j DNAT --to-destination 10.8.0.2:5000
 iptables -A FORWARD -p tcp -d 10.8.0.2 --dport 5000 -j ACCEPT
 netfilter-persistent save
 ```

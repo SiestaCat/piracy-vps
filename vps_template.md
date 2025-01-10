@@ -12,12 +12,10 @@ apt full-upgrade -y
 reboot
 ```
 
-Firewall
+Install iptables-persistent
 
 ```bash
-ufw allow 22/tcp
-ufw enable
-ufw reload
+apt install iptables-persistent -y
 ```
 
 DNS
