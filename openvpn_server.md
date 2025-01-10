@@ -32,16 +32,10 @@ Example for `5000/tcp`
 
 Replace `12.12.12.12` with the public ip address of VPS.
 
-Replace `10.8.0.2` with the private IP of the VPN client. The first client that connects is assigned that IP address. For static IPs, modify the ovpn client file and add:
+Replace `10.8.0.2` with the private IP of the VPN client. The first client that connects is assigned that IP address. For additional subnet IPs, modify the ovpn client file and add:
 
 ```bash
 ifconfig-push 10.8.0.3 255.255.255.0
-```
-
-Install iptables-persistent
-
-```bash
-apt install iptables-persistent -y
 ```
 
 Iptables.
