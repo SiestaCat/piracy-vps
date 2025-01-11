@@ -1,0 +1,310 @@
+services:
+  # <qBittorrent public trackers
+  gluetun_public_trackers:
+    image: qmcgaw/gluetun
+    container_name: gluetun_public_trackers
+    cap_add:
+      - NET_ADMIN
+    network_mode: bridge
+    ports:
+      - ${QBITTORRENT_PUBLIC_WEBUI_PORT}:${QBITTORRENT_PUBLIC_WEBUI_PORT}
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    env_file: "qb1_gluetun.env"
+    environment:
+      - TZ=${TZ}
+      - VPN_INTERFACE=${QBITTORRENT_PUBLIC_GLUETUN_INTERFACE}
+      - WIREGUARD_ADDRESSES=${QBITTORRENT_PUBLIC_GLUETUN_ADDRESS}/32
+      - VPN_DNS_ADDRESS=${QBITTORRENT_PUBLIC_GLUETUN_GATEWAY}
+    restart: always 
+
+  qbittorrent_public_trackers:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    environment:
+      - PUID=${SFTP_PUID}
+      - PGID=${SFTP_PUID}
+      - TZ=${TZ}
+      - WEBUI_PORT=${QBITTORRENT_PUBLIC_WEBUI_PORT}
+    network_mode: "service:gluetun_public_trackers"
+    volumes:
+      - config_qbittorrent_public_trackers:/config
+      - downloads_qbittorrent_public_trackers_music:/mount/music
+      - downloads_qbittorrent_public_trackers_sport:/mount/sport
+      - downloads_qbittorrent_public_trackers_images_photos:/mount/images_photos
+      - downloads_qbittorrent_public_trackers_movies_tv:/mount/movies_tv
+      - downloads_qbittorrent_public_trackers_software:/mount/software
+      - downloads_qbittorrent_public_trackers_games:/mount/games
+      - downloads_qbittorrent_public_trackers_others:/mount/others
+      - downloads_qbittorrent_public_trackers_documentaries:/mount/documentaries
+      - downloads_qbittorrent_public_trackers_books:/mount/books
+      - downloads_qbittorrent_public_trackers_audio_books:/mount/audio_books
+      - downloads_qbittorrent_public_trackers_incomplete:/mount/incomplete
+    restart: always 
+
+  qbittorrent_public_trackers_natmap:
+    image: ghcr.io/soxfor/qbittorrent-natmap:latest
+    environment:
+      - VPN_CT_NAME=gluetun_public_trackers
+      - VPN_IF_NAME=${QBITTORRENT_PUBLIC_GLUETUN_INTERFACE}
+      - QBITTORRENT_SERVER=${QBITTORRENT_PUBLIC_GLUETUN_ADDRESS}
+      - VPN_GATEWAY=${QBITTORRENT_PUBLIC_GLUETUN_GATEWAY}
+      - QBITTORRENT_USER=${QBITTORRENT_PUBLIC_WEBUI_USER}
+      - QBITTORRENT_PASS=${QBITTORRENT_PUBLIC_WEBUI_PASSWORD}
+      - CHECK_INTERVAL=${QBITTORRENT_PUBLIC_NATMAP_CHECK_INTERVAL}
+      - NAT_LEASE_LIFETIME=${QBITTORRENT_PUBLIC_NATMAP_CHECK_INTERVAL}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    network_mode: "service:gluetun_public_trackers"
+    depends_on:
+      gluetun_public_trackers:
+        condition: service_healthy
+      qbittorrent_public_trackers:
+        condition: service_started
+    restart: always
+  # qBittorrent public trackers>
+  # <qBittorrent private trackers
+  qbittorrent_private_trackers:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    environment:
+      - PUID=${SFTP_PUID}
+      - PGID=${SFTP_PUID}
+      - TZ=${TZ}
+      - WEBUI_PORT=${QBITTORRENT_PRIVATE_WEBUI_PORT}
+    ports:
+      - ${QBITTORRENT_PRIVATE_WEBUI_PORT}:${QBITTORRENT_PRIVATE_WEBUI_PORT}
+    volumes:
+      - config_qbittorrent_private_trackers:/config
+      - downloads_qbittorrent_private_trackers_music:/mount/music
+      - downloads_qbittorrent_private_trackers_sport:/mount/sport
+      - downloads_qbittorrent_private_trackers_images_photos:/mount/images_photos
+      - downloads_qbittorrent_private_trackers_movies_tv:/mount/movies_tv
+      - downloads_qbittorrent_private_trackers_software:/mount/software
+      - downloads_qbittorrent_private_trackers_games:/mount/games
+      - downloads_qbittorrent_private_trackers_others:/mount/others
+      - downloads_qbittorrent_private_trackers_documentaries:/mount/documentaries
+      - downloads_qbittorrent_private_trackers_books:/mount/books
+      - downloads_qbittorrent_private_trackers_audio_books:/mount/audio_books
+      - downloads_qbittorrent_private_trackers_incomplete:/mount/incomplete
+    restart: always 
+  # qBittorrent private trackers>
+volumes:
+  # <qBittorrent public trackers
+  config_qbittorrent_public_trackers:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_CONFIG_BASE_FOLDER}/qbittorrent_public_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_public_trackers_music:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/music/qbittorrent_public_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_public_trackers_sport:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/sport/qbittorrent_public_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_public_trackers_images_photos:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/images_photos/qbittorrent_public_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_public_trackers_movies_tv:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/movies_tv/qbittorrent_public_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_public_trackers_software:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/software/qbittorrent_public_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_public_trackers_games:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/games/qbittorrent_public_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_public_trackers_others:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/others/qbittorrent_public_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_public_trackers_documentaries:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/documentaries/qbittorrent_public_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_public_trackers_books:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/books/qbittorrent_public_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_public_trackers_audio_books:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/audio_books/qbittorrent_public_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_public_trackers_incomplete:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/incomplete/qbittorrent_public_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  
+  # qBittorrent public trackers>
+  # <qBittorrent private trackers
+  config_qbittorrent_private_trackers:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_CONFIG_BASE_FOLDER}/qbittorrent_private_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_private_trackers_music:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/music/qbittorrent_private_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_private_trackers_sport:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/sport/qbittorrent_private_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_private_trackers_images_photos:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/images_photos/qbittorrent_private_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_private_trackers_movies_tv:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/movies_tv/qbittorrent_private_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_private_trackers_software:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/software/qbittorrent_private_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_private_trackers_games:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/games/qbittorrent_private_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_private_trackers_others:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/others/qbittorrent_private_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_private_trackers_documentaries:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/documentaries/qbittorrent_private_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_private_trackers_books:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/books/qbittorrent_private_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_private_trackers_audio_books:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/audio_books/qbittorrent_private_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  downloads_qbittorrent_private_trackers_incomplete:
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "${SFTP_ADDRESS}:${SFTP_DOWNLOADS_BASE_FOLDER}/incomplete/qbittorrent_private_trackers"
+      password: "${SFTP_PASSWORD}"
+      allow_other: ""
+      reconnect: ""
+      big_writes: ""
+      port: "${SFTP_PORT}"
+  # qBittorrent private trackers>
+  
