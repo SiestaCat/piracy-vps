@@ -1,0 +1,32 @@
+{
+    "Games": {
+        "save_path": "/mount/games"
+    },
+    "Images / Photos": {
+        "save_path": "/mount/images_photos"
+    },
+    "Movies - TV": {
+        "save_path": "/mount/movies_tv"
+    },
+    "Music": {
+        "save_path": "/mount/music"
+    },
+    "Others": {
+        "save_path": "/mount/others"
+    },
+    "Software": {
+        "save_path": "/mount/software"
+    },
+    "Sport": {
+        "save_path": "/mount/sport"
+    },
+    "Documentaries": {
+        "save_path": "/mount/documentaries"
+    },
+    "Books": {
+        "save_path": "/mount/books"
+    },
+    "Audio Books": {
+        "save_path": "/mount/audio_books"
+    }
+}

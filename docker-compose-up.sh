@@ -8,4 +8,4 @@ docker run --rm -it \
   python:3.13.1-alpine3.21 \
   -c "pip install paramiko && python3 /script.py"
 
-docker compose up --wait --remove-orphans --renew-anon-volumes --force-recreate --y
+docker compose up --wait --remove-orphans --renew-anon-volumes --y
