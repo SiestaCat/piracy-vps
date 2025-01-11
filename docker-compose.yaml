@@ -70,8 +70,10 @@ services:
       - PGID=${SFTP_PUID}
       - TZ=${TZ}
       - WEBUI_PORT=${QBITTORRENT_PRIVATE_WEBUI_PORT}
+      - TORRENTING_PORT=${QBITTORRENT_PRIVATE_TORRENTING_PORT}
     ports:
       - ${QBITTORRENT_PRIVATE_WEBUI_PORT}:${QBITTORRENT_PRIVATE_WEBUI_PORT}
+      - ${QBITTORRENT_PRIVATE_TORRENTING_PORT}:${QBITTORRENT_PRIVATE_TORRENTING_PORT}
     volumes:
       - config_qbittorrent_private_trackers:/config
       - downloads_qbittorrent_private_trackers_music:/mount/music
