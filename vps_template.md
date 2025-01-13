@@ -9,7 +9,6 @@ Update
 ```bash
 apt update -y
 apt full-upgrade -y
-reboot
 ```
 
 Install iptables-persistent
